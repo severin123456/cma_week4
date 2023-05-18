@@ -4,23 +4,128 @@ format: html
 editor: visual
 ---
 
-## Quarto
+Funktion schreiben um umständliches Coden zu vermeiden.
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+Nur in den {} geschriebener Code führt dazu, dass immer der gleiche Output aus der Funktion ausgegeben wird.
 
 ```{r}
-1 + 1
+testfun <- function() {
+  print("this functon does nothing")
+}
+
+testfun()
 ```
 
-You can add options to executable code like this
+In den () kann man input Werte definieren.
 
 ```{r}
-#| echo: false
-2 * 2
+testfun <- function(sometext) {
+  print(sometext)
+}
+
+testfun(sometext="this function does slightly more, but still not much")
+
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+Seit R 4.1 kann man den Syntax auch folgendermassen schreiben.
+
+```{r}
+testfun <- \(sometext){
+  print(sometext)
+}
+
+testfun(sometext = "Huhu")
+#Oder
+
+testfun <- \(sometext) print(sometext)
+testfun(sometext= "Hoi")
+```
+
+Man kann eine Funktion schreiben um das Alter zu bestimmen, wenn der Input das Geburtsdatum ist.
+
+```{r}
+my_age <- \(birthday, units)
+  difftime(Sys.time(),birthday, units = units)
+  
+my_age(birthday = "1991-11-12", units = "days")
+
+#Oder wenn man die Variablen in der gelisteten Reihenfolge schreibt:
+
+my_age("1991-11-12", "weeks")
+```
+
+Will man Standartwerte für einen Parameter, kann man dem Parameter in den () einen initial value zuordnen.
+
+```{r}
+my_age <- \(birthday, units= "days")
+  difftime(Sys.time(),birthday, units = units)
+  
+my_age("1991-11-12")
+#Um dann doch einen anderen Wert als den Standard-Wert auszugeben, kann man diesen einfach definieren.
+
+my_age("1991-11-12", "hours")
+
+```
+
+Wenn man jetzt die Funktionsdeklaration zu Beginn des Skripts ausführt, kann man diese innerhalb des Skripts immer ausführen.
+
+Mehr Infos zu Funktionen:
+
+<https://raps-with-r.dev/fprog.html#referentially-transparent-and-pure-functions>
+
+Task 1
+
+```{r}
+library(readr)
+wildschwein <- as.data.frame(read_csv("data/Wildschwein_BE_2056.csv"))
+str(wildschwein)
+
+library(sf)
+wildschwein <- st_as_sf(wildschwein, coords = c("E", "N"), crs = 2056, remove = FALSE)
+
+library(dplyr)
+wildschwein <- wildschwein |> 
+  group_by(TierName) |> 
+  mutate(steplength_m=sqrt((E-lead(E))^2+(N-lead(N))^2))
+
+
+#Mein Versuch
+steplength <- \(data, Individuum) {
+  data= data |> 
+  group_by(Individuum) |> 
+  mutate(steplength_m=sqrt((E-lead(E))^2+(N-lead(N))^2))
+}
+steplength(wildschwein, TierName)
+#Klappt nicht...
+
+
+#Chat GPT
+execute_code <- function(data, tier_variable) {
+  library(dplyr)
+  
+  result <- data %>%
+    group_by({{ tier_variable }}) %>%
+    mutate(steplength_m = sqrt((E - lead(E))^2 + (N - lead(N))^2))
+  
+  return(result)
+}
+
+execute_code(wildschwein, TierName)
+#Funktioniert
+```
+
+Task 2
+
+```{r}
+Sys.setenv(TZ = "UTC")
+#Mein Versuch
+
+
+neuer_datensatz <- wildschwein |> 
+  filter(TierName %in% c("Sabi", "Rosa"),
+         DatetimeUTC >= "2015-04-01" & DatetimeUTC <= "2015-04-15 23:59:59")
+
+nrow(wildschwein_filter)
+nrow(neuer_datensatz)
+
+```
