@@ -146,8 +146,9 @@ nrow(sabi)
 rosa <- neuer_datensatz |> 
   filter(TierName == "Rosa")
 nrow(rosa)
-as.data.frame(sabi)
-as.data.frame(rosa)
+sabi <- as.data.frame(sabi)
+rosa <- as.data.frame(rosa)
 
+SabiRosaJoin <- inner_join(rosa, sabi, by="DatetimeUTCrounded")
 
 ```
