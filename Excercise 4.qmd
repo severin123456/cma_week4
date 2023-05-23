@@ -100,11 +100,11 @@ steplength(wildschwein, TierName)
 
 
 #Chat GPT
-execute_code <- function(data, tier_variable) {
+execute_code <- function(data, Individuum) {
   library(dplyr)
   
   result <- data %>%
-    group_by({{ tier_variable }}) %>%
+    group_by({{ Individuum }}) %>%
     mutate(steplength_m = sqrt((E - lead(E))^2 + (N - lead(N))^2))
   
   return(result)
@@ -118,14 +118,36 @@ Task 2
 
 ```{r}
 Sys.setenv(TZ = "UTC")
-#Mein Versuch
-
 
 neuer_datensatz <- wildschwein |> 
   filter(TierName %in% c("Sabi", "Rosa"),
          DatetimeUTC >= "2015-04-01" & DatetimeUTC <= "2015-04-15 23:59:59")
 
-nrow(wildschwein_filter)
 nrow(neuer_datensatz)
+
+```
+
+Task 3
+
+```{r}
+library(lubridate)
+
+neuer_datensatz$DatetimeUTCrounded <- round_date(neuer_datensatz$DatetimeUTC, "15 minutes")
+
+```
+
+Task 4
+
+```{r}
+sabi <- neuer_datensatz |> 
+  filter(TierName == "Sabi")
+nrow(sabi)
+
+rosa <- neuer_datensatz |> 
+  filter(TierName == "Rosa")
+nrow(rosa)
+as.data.frame(sabi)
+as.data.frame(rosa)
+
 
 ```
